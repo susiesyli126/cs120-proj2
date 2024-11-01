@@ -79,12 +79,12 @@ const WordleGame = {
                 '#FF0000', // red
                 '#FF7F00', // orange
                 '#FFFF00', // yellow
-                // '#00FF00', // Green
+                // '#00FF00', // green
                 // '#00FF00', // lime
-                // // '#0000FF', // Blue
-                // '#7DD0D7', // Indigo
-                // '#9400D3', // Violet
-                // '#C0C0C0'  // Silver
+                // // '#0000FF', // blue
+                // '#7DD0D7', // indigo
+                // '#9400D3', // violet
+                // '#C0C0C0'  // silver
                 // '#EE7EAD',
                 '#FFA9BA', // dark pink
                 '#FFD7D6', // light pink 
@@ -104,32 +104,29 @@ const WordleGame = {
     // take user input, check if it's valid, display result on board 
     async handleGuessSubmission() {
         const guess = document.getElementById('guess-input').value.toLowerCase();
-
         // error check: not a 5-letter word 
         if (guess.length !== 5) {
             alert('Please enter a 5-letter word.');
             return;
         }
-
         // error check: user guessed an invalid word 
         const isValidWord = await this.validateWord(guess);
         if (!isValidWord) {
             alert('Please enter a valid word.');
             return;
         }
-
         // input is valid, process answer 
         if (guess.length === 5) {
             this.checkGuess(guess); // check letter by letter 
             this.guessCount++;
             document.getElementById('guess-input').value = ''; // clear input string 
             
-            if (guess === this.answerWord) {
+            if (guess === this.answerWord) { // user guessed correctly 
                 alert(`Congrats you win! The word was: ${this.answerWord}`);
                 this.showConfetti();  
                 this.updateGameStats(this.guessCount);
                 document.getElementById('restart').classList.add('show');
-            } else if (this.guessCount === 6) {
+            } else if (this.guessCount === 6) { // reached 6 guesses 
                 alert(`Game over! The word was: ${this.answerWord}`);
                 this.updateGameStats(6);
                 document.getElementById('restart').classList.add('show');
@@ -181,14 +178,14 @@ const WordleGame = {
 
     // update statistics after each game
     updateGameStats(currentGuessCount) {
-        this.totalGuesses += currentGuessCount;
+        this.totalGuesses += currentGuessCount; // add this game's number of guesses 
         this.gameCount++;
         this.saveGameStats();
-        this.displayAverageGuesses();
+        this.showAverageStats();
     },
 
     // display average guesses across multiple sessions 
-    displayAverageGuesses() {
+    showAverageStats() {
         let averageGuesses = 0; 
         if (this.gameCount !== 0) { // prevent div by 0 error 
             averageGuesses = this.totalGuesses / this.gameCount.toFixed(2);
@@ -201,7 +198,6 @@ const WordleGame = {
     restartGame() {
         this.guessCount = 0;
         const board = document.getElementById('board');
-        board.innerHTML = '';
         this.createBoard();
         this.setAnswerWord();
         document.getElementById('restart').classList.remove('show');
@@ -211,10 +207,10 @@ const WordleGame = {
     // starts a game by creating the word list + setting up the board and cookie 
     init() {
         this.jsConfetti = new JSConfetti();  
-        this.loadGameStats(); 
+        this.loadGameStats(); // track average 
         this.createWordList();
         this.createBoard();
-        this.displayAverageGuesses();
+        this.showAverageStats();
 
         // event handler: user clicks "submit guess" button to enter a guess 
         document.getElementById('submit-guess').addEventListener('click', () => {
