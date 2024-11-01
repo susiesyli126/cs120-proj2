@@ -1,9 +1,9 @@
-const WordleGame = {
-    wordList: [], // array of valid 5-letter words
-    answerWord: '', // stores correct answer word 
-    guessCount: 0, // number of guesses tracker 
-    totalGuesses: 0, // track total guesses across multiple browser sessions
-    gameCount: 0, // track number of games the user has played 
+const WordleGame = { // wrap in an object and run with init()
+    wordList: [], // array of valid 5-letter words, to be populated later
+    answerWord: '', // stores correct answer word, to be set later
+    guessCount: 0, // tracks number of guesses in one round  
+    totalGuesses: 0, // tracks total guesses across multiple browser sessions
+    gameCount: 0, // tracks number of games the user has played 
 
     // initialize the game board
     createBoard() {
@@ -22,9 +22,9 @@ const WordleGame = {
         fetch('five-letter-words.txt')
             .then(response => response.text())
             .then(data => {
-                // convert text file into an array of words
+                // convert text file into an array of 5-letter words
                 this.wordList = data.split('\n').filter(word => word.length === 5);
-                this.setAnswerWord();
+                this.setAnswerWord(); // set a random word as answer 
             })
             .catch(error => {
                 console.error('Error fetching the word list:', error);
@@ -35,7 +35,7 @@ const WordleGame = {
     setAnswerWord() {
         if (this.wordList.length > 0) {
             this.answerWord = this.wordList[Math.floor(Math.random() * this.wordList.length)].trim();
-            console.log('Answer:', this.answerWord);
+            console.log('Answer:', this.answerWord); // print to console for debugging 
         }
     },
 
@@ -57,10 +57,9 @@ const WordleGame = {
         // check letter by letter 
         guessArray.forEach((letter, index) => {
             const letterBox = document.querySelector(`.row-${this.guessCount}.col-${index}`);
-            
-            // display the guessed letter in the corresponding box
+            // change to all caps 
             letterBox.textContent = letter.toUpperCase();
-            
+            // set green, yellow or grey match 
             if (letter === answerArray[index]) {
                 letterBox.classList.add('correct');
             } else if (answerArray.includes(letter)) {
@@ -72,7 +71,7 @@ const WordleGame = {
     },
 
     // display confetti on screen. called when user guesses a word correctly 
-    showConfetti() {
+    showConfetti() { // uses js-confetti library 
         this.jsConfetti.addConfetti({
             // sets colors 
             confettiColors: [
@@ -80,7 +79,7 @@ const WordleGame = {
                 '#FF7F00', // orange
                 '#FFFF00', // yellow
                 // '#00FF00', // green
-                // '#00FF00', // lime
+                '#00FF00', // lime
                 // // '#0000FF', // blue
                 // '#7DD0D7', // indigo
                 // '#9400D3', // violet
@@ -126,7 +125,7 @@ const WordleGame = {
                 this.showConfetti();  
                 this.updateGameStats(this.guessCount);
                 document.getElementById('restart').classList.add('show');
-            } else if (this.guessCount === 6) { // reached 6 guesses 
+            } else if (this.guessCount === 6) { // reached max number of guesses
                 alert(`Game over! The word was: ${this.answerWord}`);
                 this.updateGameStats(6);
                 document.getElementById('restart').classList.add('show');
@@ -137,7 +136,7 @@ const WordleGame = {
     /*******************************************************************
      *                          COOKIE FUNCTIONS                       *
      *******************************************************************/
-    // set cookie + when it expires 
+    // set cookie: name, value, and when it expires 
     setCookie(name, value, days) {
         let date = new Date();
         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000)); // x number of days since now 
@@ -169,18 +168,19 @@ const WordleGame = {
 
     // save this game's to cookies
     saveGameStats() {
+        let days = 2; // store for 2 days. change this variable if needed 
         const stats = { // JS object 
-            totalGuesses: this.totalGuesses,
-            gameCount: this.gameCount
+            totalGuesses: this.totalGuesses, // number of total guesses 
+            gameCount: this.gameCount // number of games played 
         };
-        this.setCookie('wordleStats', JSON.stringify(stats), 2); // store for 2 days
+        this.setCookie('wordleStats', JSON.stringify(stats), days); // store for 2 days
     },
 
     // update statistics after each game
     updateGameStats(currentGuessCount) {
         this.totalGuesses += currentGuessCount; // add this game's number of guesses 
-        this.gameCount++;
-        this.saveGameStats();
+        this.gameCount++; // 1 more game played 
+        this.saveGameStats(); // create object and set cookie 
         this.showAverageStats();
     },
 
@@ -188,7 +188,7 @@ const WordleGame = {
     showAverageStats() {
         let averageGuesses = 0; 
         if (this.gameCount !== 0) { // prevent div by 0 error 
-            averageGuesses = this.totalGuesses / this.gameCount.toFixed(2);
+            averageGuesses = (this.totalGuesses / this.gameCount).toFixed(2); // 2 decimal points 
         } 
         const averageElement = document.getElementById('average-guesses');
         averageElement.textContent = `Average guesses per game: ${averageGuesses}`;
@@ -208,7 +208,7 @@ const WordleGame = {
     init() {
         this.jsConfetti = new JSConfetti();  
         this.loadGameStats(); // track average 
-        this.createWordList();
+        this.createWordList(); // txt file to array 
         this.createBoard();
         this.showAverageStats();
 
